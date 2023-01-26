@@ -27,6 +27,8 @@ class Excellerator2():
         self.vi_sheetname = 'Math'
         self.rtp_column = 'RTP'
         self.vi_column = 'Volatility Index'
+        self.paylines_column = 'Number of Lines'
+        self.bet_per_line_column = 'Bet Per Line'
         #self.columns = ['Win Lines', 'Weight', 'Lower Range', 'Upper Range']
         self.columns="A:D"  # the above column names, it's either one or the other to select.
         #self.paylines_total = 9 # 3x3 defaul0t value to be set later... in the paylines
@@ -62,7 +64,7 @@ class Excellerator2():
         self.load_excel()        
         # for each set, table 1 would be #spins, table 2 is paylines, table 3 is win values
         # for example, after the excel file is loaded, we should be able to directly call the first three tables, always
-        self.paylines = len(self.lines_sheet1) - 1 # -1 becuase we aren't counting the 0 line /  header
+        #self.paylines = len(self.lines_sheet1) - 1 # -1 becuase we aren't counting the 0 line /  header
         # this needs to be addressed, due to new calculations
         if(self.paylines == 0):
             self.paylines = 1
@@ -86,7 +88,7 @@ class Excellerator2():
         self.pays_sheet1 = excel_file.parse(sheet_name=sheet_count, usecols=self.columns, header=0)
         self.pays_sheet1.columns = self.pays_sheet1.columns.str.strip()
         sheet_count += 1
-        # set the math
+        # set the math -- ERROR CHECKING NEEDED HERE
         # set the RTP
         if(self.rtp_sheetname in excel_file.sheet_names):
             self.rtp_data = pd.read_excel(self.input_filepath, sheet_name=self.rtp_sheetname, header=0)
@@ -96,6 +98,12 @@ class Excellerator2():
             self.vi_data = pd.read_excel(self.input_filepath, sheet_name=self.vi_sheetname, header=0)
             self.vi_data.columns = self.vi_data.columns.str.strip()
             self.vi = self.vi_data[self.vi_column][0]
+        self.paylines_data = pd.read_excel(self.input_filepath, sheet_name=self.rtp_sheetname, header=0)
+        self.paylines_data.columns = self.paylines_data.columns.str.strip()
+        self.paylines = self.paylines_data[self.paylines_column][0]
+        self.bet_per_line_data = pd.read_excel(self.input_filepath, sheet_name=self.rtp_sheetname, header=0)
+        self.bet_per_line_data.columns = self.bet_per_line_data.columns.str.strip()
+        self.bet_per_line = self.bet_per_line_data[self.bet_per_line_column][0] / 100  # converting correctly.
     
         # now dynamically build the bonus games
         for i in range(2, games_total+1):
@@ -138,12 +146,12 @@ class Excellerator2():
                 ##total_mean_lines += 1
                 sum_weighted_win += line[0] * line[1]
                 sum_weight += line[1]                                                                                                                                                                                                                                                                                                                                          
-                if(self.debug_level >= 0):
+                if(self.debug_level >= 2):
                     print(f"    #### sum of weighted wins: {sum_weighted_win} and the sum of weights: {sum_weight}")
         # This needs to be a Weighted Mean Formula
-        #self.mean_pay = total_mean_pays / total_mean_lines
         self.mean_pay = sum_weighted_win / sum_weight
-        if(self.debug_level >= 0):
+        #self.mean_pay = total_mean_pays / total_mean_lines
+        if(self.debug_level >= 2):
             print(f"    #### mean pay {self.mean_pay} = sum of products {sum_weighted_win} / weights {sum_weight}")
         #if(self.debug_level >= 2):
         #    print(f"        $!MATH$! Paytable Mean Pay is {self.mean_pay}")    
@@ -267,7 +275,7 @@ class Excellerator2():
                                 print(f"      Chose {lrow[0]} Line Wins")
                             if(lrow[0] > 0):
                                 # if it's more than 0 lines
-                                for lines in range(0, lrow[0]):  
+                                for lines in range(0, int(lrow[0])):  
                                     psur = int(self.pays_sheet1[-1:]['Upper Range']) # should never have 0 as an UR. if so, out of design
                                     if(psur == 0):
                                         psur = 1
@@ -308,9 +316,11 @@ class Excellerator2():
             if(self.round_win > self.maximum_liability):
                 self.maximum_liability = self.round_win
             # reminder to check mean_pay - do we sum the bonus tables too? 
+            # the running summation, calculated each round, skipping non-wins because it's += 0 and extra unneeded calcs
+            self.summation += (self.round_win * 100) ** 2 / self.paylines   # multiplying 100 to put it into 'credits' instead of 'money' 
+            #self.summation += (self.round_win - self.mean_pay) ** 2
             if(self.debug_level >= 2):
-                print(f"    +=+=+=+= summation is now {self.summation}, which added: ({self.mean_pay} minus {self.round_win}) squared. ")
-        # the running summation, calculated each round, including non-wins
-        self.summation += (self.round_win - self.mean_pay) ** 2
+                print(f"    +=+=+=+= summation is now {self.summation}, which is adding {self.round_win*100} squared, divided by {self.paylines}. ")
+
     # end of play_game
 #end class Excellerator2

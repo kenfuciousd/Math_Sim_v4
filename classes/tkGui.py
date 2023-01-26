@@ -19,7 +19,7 @@ class tkGui(tk.Tk):
         super().__init__()  #the super is a bit unnecessary, as there is nothing to inherit... but leaving it here for reference. 
         self.debug_level_default = 0
         #initial gui settings and layout
-        self.geometry("650x710")
+        self.geometry("650x740")
         self.title("Slot Simulator")
         self.columnconfigure(0, weight = 1)
         self.columnconfigure(1, weight = 1)
@@ -27,8 +27,8 @@ class tkGui(tk.Tk):
         self.columnconfigure(3, weight = 1)
 
         # default text/value entries
-        self.bet = StringVar(self, value = "0.50")  ## set this as a string in order to get a decimal.
-        #self.bet = StringVar(self, value = "0.01")  ## set this as a string in order to get a decimal.
+        #self.bet = StringVar(self, value = "0.50")  ## set this as a string in order to get a decimal.
+        self.bet = StringVar(self, value = "0.01")  ## set this as a string in order to get a decimal.
         self.slot_ready = False
         self.infinite_checked = BooleanVar(self, value=False)
         #self.mechreel_checked = BooleanVar(self, value=True)
@@ -147,6 +147,7 @@ class tkGui(tk.Tk):
         self.slot_ready = True
         self.status_box.set("[2. Slot Built - Credits Loaded]")
         self.payline_number.set(self.sm.paylines)
+        self.bet.set(self.sm.bet_per_line)
         self.payline_totalbet.set("{:.2f}".format(int(self.payline_number.get()) * float(self.bet_entry.get())))
         self.machine_credits.set(self.sm.return_credits())
         # a gui checkbox to show it was done? in the build column in slot 0?
@@ -205,16 +206,18 @@ class tkGui(tk.Tk):
         # volatility is Standard Deviation * the Confidence Interval. Std Dev is the square root of the variance. variance is summation / coin-in
         # weighted mean is in the excellerator, used to compute Sum of Squares "summation"
         # summation defined elsewhere - in the slot machine excellerator, with the line: self.summation += (self.round_win - self.mean_pay) ** 2 
-        coinin = self.sm.total_bet
-        coinout = self.sm.total_won
+        coinin = self.sm.total_bet * 100    # times 100 because the machine keeps track in dollars and cents. the calculation is in cents
+        coinout = self.sm.total_won * 100 
+        #print(f"-- coins in: {coinin} out: {coinout}")
         #https://www.investopedia.com/terms/v/variance.asp
         #variance = math.sqrt( self.sm.summation / float(self.sim.spins[-1]) )      # from the math pages, cited. 
-        variance = math.sqrt((self.sm.summation - (coinout **2 / coinin)) / coinin) # Scott's Formula
+        variance = abs( ( self.sm.summation - (coinout **2 / coinin) ) / coinin ) # Scott's adjusted formula
+        # absolute number is required, because sqrt of negs throws errors. 
         stddev = math.sqrt(variance)
         # https://www.investopedia.com/terms/v/volatility.asp
         volatility = stddev * self.confidence_interval
-        if(self.debug_level.get() >= 0):
-            print(f"coins in: {coinin} out: {coinout} variance: {variance} stddev: {stddev} volatility: {volatility}")
+        if(self.debug_level.get() >= 1):
+            print(f"    #InDev# Volatility calculation variables\n    -- coins in: {coinin} out: {coinout} summation: {self.sm.summation} variance: {variance} stddev: {stddev} volatility: {volatility}")
         #volatilitymath = math.sqrt( self.sm.summation / (float(self.sim.spins[-1]) * self.payline_totalbet.get()) ) * self.confidence_interval   #(removed the +1 required by the function, as the length inclides the zero line, an additional 1
         #volatilitymath = math.sqrt( self.sm.summation - (self.sm.total_won ** 2 / self.sm.total_bet) / self.sm.total_bet ) * self.confidence_interval        
         #volatilitymath = math.sqrt( self.sm.summation - (self.sm.total_won ** 2 / self.sm.total_bet) / self.sm.total_bet ) * self.confidence_interval                
@@ -273,10 +276,6 @@ class tkGui(tk.Tk):
         self.debug_entry = ttk.Entry(self, width = 8, textvariable = self.debug_level)
         self.debug_entry.grid(row = gui_row_iteration, column = 3)
         gui_row_iteration += 1
-        self.label_bet = tk.Label(self, text="Bet per Line ")
-        self.label_bet.grid(row = gui_row_iteration, column = 0, sticky=E)
-        self.bet_entry = ttk.Entry(self, width = 8, textvariable = self.bet)
-        self.bet_entry.grid(row = gui_row_iteration, column = 1)
         #gui_row_iteration += 1
         self.label_cred = tk.Label(self, width = 14, text="Starting Dollars ")
         self.label_cred.grid(row = gui_row_iteration, column = 2, sticky=E)
@@ -312,11 +311,15 @@ class tkGui(tk.Tk):
         gui_row_iteration += 1
 
         # payline explanation
+        self.label_bet = tk.Label(self, text="Bet per Line ")
+        self.label_bet.grid(row = gui_row_iteration, column = 0, sticky=E)
+        self.bet_entry = ttk.Entry(self, width = 8, textvariable = self.bet)
+        self.bet_entry.grid(row = gui_row_iteration, column = 1)
         self.label_payinfo = tk.Label(self, text="Paylines: ")
-        self.label_payinfo.grid(row = gui_row_iteration, column = 0, sticky=E)
+        self.label_payinfo.grid(row = gui_row_iteration, column = 2, sticky=E)
         self.paylines_entry = ttk.Entry(self, width = 8, state='readonly', textvariable = self.payline_number)
-        self.paylines_entry.grid(row = gui_row_iteration, column = 1)
-        #gui_row_iteration += 1
+        self.paylines_entry.grid(row = gui_row_iteration, column = 3)
+        gui_row_iteration += 1
         self.label_payinfo = tk.Label(self, text="Total Bet: ")
         self.label_payinfo.grid(row = gui_row_iteration, column = 2, sticky=E)
         self.paylines_entry = ttk.Entry(self, width = 8, state='readonly', textvariable = self.payline_totalbet)
