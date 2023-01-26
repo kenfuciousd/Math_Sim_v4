@@ -27,8 +27,8 @@ class tkGui(tk.Tk):
         self.columnconfigure(3, weight = 1)
 
         # default text/value entries
-        #self.bet = StringVar(self, value = "0.25")  ## so I need to set this as a string in order to get a decimal.
-        self.bet = StringVar(self, value = "0.01")  ## so I need to set this as a string in order to get a decimal.
+        self.bet = StringVar(self, value = "0.50")  ## set this as a string in order to get a decimal.
+        #self.bet = StringVar(self, value = "0.01")  ## set this as a string in order to get a decimal.
         self.slot_ready = False
         self.infinite_checked = BooleanVar(self, value=False)
         #self.mechreel_checked = BooleanVar(self, value=True)
@@ -58,6 +58,9 @@ class tkGui(tk.Tk):
         self.found_return_to_player = DoubleVar(self, value = 0)
         self.bonus_hit_percentage = DoubleVar(self, value = 0)
         self.bonus_hit_count = DoubleVar(self, value = 0)
+        self.confidence_interval = 1.65 # 90% confidence
+        #self.confidence_interval = 1.96 # 95% confidence 
+        #self.confidence_interval = 2.58 # 99% confidence       
         self.plot_toggle = 0
         # finally for init, create the gui itself, calling the function
         self.create_gui()
@@ -72,6 +75,9 @@ class tkGui(tk.Tk):
         #self.input_filepath.set("")
         #self.input_file_entry.select_clear()     
         the_input = fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("excel files","*.xlsx"), ("all files","*.*")) )
+        while(the_input == ''):
+            print(f"WARNING: An .xslx input file, properly formatted, is required.")
+            the_input = fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("excel files","*.xlsx"), ("all files","*.*")) )
         self.input_filepath.set(the_input)
         if(self.debug_level.get() >= 2):
             print(f"        input is {self.input_filepath.get()}")
@@ -172,23 +178,48 @@ class tkGui(tk.Tk):
         self.sim.plot_rtp_result()
 
     def do_the_math(self):
-        """ Moving the math here - this fills out the bottom portion of the gui """
-        #print(f" So here is what is returned from the SIM: \n {str(self.df)}")
+        """ Moving the math here - this fills out the bottom portion of the gui after play"""
         ######math goes here for output
         if(self.debug_level.get() >= 2):
             print(f"        hit info for math, total hits {self.sm.hit_total} and simulator runs: {self.simruns.get()}")
-        hfe = ( self.sm.hit_total / self.simruns.get() )  * 100   #### is this needed? it's used in the templates file... 
+        hfe = ( self.sm.hit_total / self.simruns.get() ) * 100 
         self.hit_freq.set(str(round(hfe, 2))+"%")
         ml = self.sm.maximum_liability
         self.max_liability.set("$"+str(round(ml, 2)))
         
         #### volatility goes here. ### 
-        if(self.debug_level.get() >= 1):
+        #if(self.debug_level.get() >= 1):
             #print(f"    ^^^^ the volatility math: {self.sm.summation} / {self.simruns.get() * (len(self.sm.paytable) + 1)} = {self.sm.summation/(self.simruns.get() * (len(self.sm.paytable) + 1))}.. sqrt is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.paytable) + 1) ))}, and so with * 1.96 the volatility index is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.paytable) + 1) )) * 1.96} ")
-            print(f"    ^^^^ the volatility math: {self.sm.summation} / {self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1)} = {self.sm.summation/(self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1))}.. sqrt is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) ))}, and so with * 1.96 the volatility index is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) )) * 1.96} ")
-        #volatilitymath = math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.paytable) + 1) ) ) * 1.96
-        volatilitymath = math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1) ) ) ) * 1.96   #(removed the +1 required by the function, as the length inclides the zero line, an additional 1
-        self.volatility.set(round(volatilitymath, 2))
+            #print(f"    ^^^^ the volatility math: {self.sm.summation} / {self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1)} = {self.sm.summation/(self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1))}.. sqrt is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) ))}, and so with * 1.96 the volatility index is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) )) * 1.96} ")
+            #print(f"    ^^^^ the volatility math: {self.sm.summation} / {self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1)} = {self.sm.summation/(self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1))}.. sqrt is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) ))}, and so with * 1.96 the volatility index is {math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1)-1 + 1) )) * 1.96} ")
+        #volatilitymath = math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.paytable) + 1) ) ) * 1.96   #()
+        #volatilitymath = math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1) ) ) ) * self.confidence_interval   #(removed the +1 required by the function, as the length inclides the zero line, an additional 1
+        ##### this section is where we are refining the math. 
+        ## self.sim.spins instead of simruns, lines_sheet1 is no longer necessarily the paylines total because changes
+        #volatilitymath = math.sqrt( self.sm.summation / (self.simruns.get() * (len(self.sm.lines_sheet1) ) ) ) * self.confidence_interval   #(removed the +1 required by the function, as the length inclides the zero line, an additional 1
+        # above is the old way
+        # below is the new way
+        if(self.debug_level.get() >= 2):
+            print(f"    ^^^^ the volatility math: summation {self.sm.summation} / {float(self.sim.spins[-1]) * self.payline_totalbet.get()} = {self.sm.summation / (float(self.sim.spins[-1]) * self.payline_totalbet.get())}")
+            print(f"    .. sqrt times confidence interval is {math.sqrt( self.sm.summation / (float(self.sim.spins[-1]) * self.payline_totalbet.get()) ) * self.confidence_interval} ")
+        # volatility is Standard Deviation * the Confidence Interval. Std Dev is the square root of the variance. variance is summation / coin-in
+        # weighted mean is in the excellerator, used to compute Sum of Squares "summation"
+        # summation defined elsewhere - in the slot machine excellerator, with the line: self.summation += (self.round_win - self.mean_pay) ** 2 
+        coinin = self.sm.total_bet
+        coinout = self.sm.total_won
+        #https://www.investopedia.com/terms/v/variance.asp
+        #variance = math.sqrt( self.sm.summation / float(self.sim.spins[-1]) )      # from the math pages, cited. 
+        variance = math.sqrt((self.sm.summation - (coinout **2 / coinin)) / coinin) # Scott's Formula
+        stddev = math.sqrt(variance)
+        # https://www.investopedia.com/terms/v/volatility.asp
+        volatility = stddev * self.confidence_interval
+        if(self.debug_level.get() >= 0):
+            print(f"coins in: {coinin} out: {coinout} variance: {variance} stddev: {stddev} volatility: {volatility}")
+        #volatilitymath = math.sqrt( self.sm.summation / (float(self.sim.spins[-1]) * self.payline_totalbet.get()) ) * self.confidence_interval   #(removed the +1 required by the function, as the length inclides the zero line, an additional 1
+        #volatilitymath = math.sqrt( self.sm.summation - (self.sm.total_won ** 2 / self.sm.total_bet) / self.sm.total_bet ) * self.confidence_interval        
+        #volatilitymath = math.sqrt( self.sm.summation - (self.sm.total_won ** 2 / self.sm.total_bet) / self.sm.total_bet ) * self.confidence_interval                
+#        self.volatility.set(round(volatilitymath, 2))
+        self.volatility.set(round(volatility, 2))
         #found volatility from the spreadsheet
         try:
             self.found_volatility.set(round(self.sm.vi, 2))
@@ -200,12 +231,14 @@ class tkGui(tk.Tk):
             print(f"    $$$$ RTP is {self.sm.total_won} / {self.sm.total_bet} = {(self.sm.total_won / self.sm.total_bet)} ")
         self.return_to_player.set("{:.2f}".format(self.sm.total_won / self.sm.total_bet * 100)+"%")
         # found rtp from the spreadsheet
-        self.found_return_to_player.set( str(round(self.sm.rtp, 2) ) + "%" ) 
+        try:
+            self.found_return_to_player.set( str(round(self.sm.rtp, 2) ) + "%" ) 
+        except NameError:
+            self.found_return_to_player.set("N/A")
 
         # finally, record / print our final values as a status
         if(self.debug_level.get() >= 1):
             print(f"Final values, at spin {self.sim.spins[len(self.sim.spins)-1]}, the final credit value was {self.sim.incremental_credits[len(self.sim.incremental_credits)-1]}" )
-
         self.end_time = time.time()
         run_time = np.round(self.end_time - self.start_time, 2) 
         mrt = np.round(run_time / 60 , 2) 
@@ -213,7 +246,8 @@ class tkGui(tk.Tk):
         self.hit_total.set(self.sm.hit_total)
         self.bonus_hit_count.set( str(self.sm.bonus_hit_count) )
         self.bonus_hit_percentage.set( str(bhp) + "%")
-        print(f"Simulation Complete, total run time in seconds: {run_time}, approximately {mrt} minutes, played {self.sim.spins[-1]} spins.")
+        # end of the simulation procedure
+        print(f"Simulation Complete, total run time in seconds: {run_time}, or approximately {mrt} minutes, played {self.sim.spins[-1]} spins.")
 
     def create_gui(self):
         # UI element values

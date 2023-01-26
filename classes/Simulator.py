@@ -1,6 +1,6 @@
 from collections import defaultdict
 from datetime import datetime
-import pandas as pd     # for reading Excel
+#import pandas as pd     # for reading Excel
 import matplotlib.pyplot as plt  # for displaying math
 
 
@@ -49,14 +49,16 @@ class Simulator():
                 else:    
                     print("!!!! Not enough credits, $" + str(self.this_bet) + " is required.")
                     break
+                    #end of non-infinite simulation
         #main game loop 
-            # some of the busy parts of the simulator. spin the slotmachine(sm)'s reels and track the data
+            # some of the busy parts of the simulator. spin the slotmachine(sm)'s 'reels' and track the data
             # choosing a list for the win_list var because it's easy to convert to a DataFrame later. 
             #self.total_bet += self.this_bet 
             if(self.debug_level >= 1):
-                print(f"spin {str(iteration+1)} and credits ${str(self.sm.return_credits())}")
+                print(f"Beginning spin {str(iteration+1)} and starting credits ${str(self.sm.return_credits())}")
             #self.sm.spin_reels()
-            self.sm.play_game()
+            self.sm.play_game()     ### This is the big one - this runs an iteration of the game, calling on the slot machine / excellerator
+            ### now do the after-play math
             #self.total_won += self.sm.round_win 
             self.incremental_rtp.append( (self.sm.total_won / self.sm.total_bet) * 100 )
             self.incremental_credits.append(self.sm.return_credits())
@@ -72,9 +74,10 @@ class Simulator():
             if(self.debug_level >= 3):
                 print(f"    spin {str(iteration)} and credits ${str(self.sm.return_credits())} and added to the dictionary: {self.win_list[iteration]}")
 
-
+# The following sections are for the graphing of the results - most of the functionality is built into mathplotlib
     def plot_credits_result(self):
         #plt.style.use('_mpl-gallery')
+        # plot toggle 1, 0 is initial state
         if(self.plot_toggle == 0):
             #plt.clf()
             self.plot_toggle = 2
@@ -89,6 +92,7 @@ class Simulator():
         plt.show()
 
     def plot_rtp_result(self):
+        # plot toggle 2
         rtp = []
         if(self.plot_toggle == 0):
             #plt.clf()

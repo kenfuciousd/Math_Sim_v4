@@ -14,7 +14,7 @@ import time
 import os
 import math
 
-
+# taking in arguments
 if __name__ == '__main__':
     # you probably want debug at zero, here, in order to generate things quickly. 
     debug_level = 0
