@@ -88,7 +88,7 @@ class Excellerator():
         # 
         #self.paytable_data = pd.read_excel(self.input_filepath, sheet_name=self.paytable_sheetname, usecols=self.columns)
         #self.paytable = []
-        #for idx, row in self.paytable_data.iterrows():
+        #for idx, row in self.paytable_data.itertuples():
             # for each row
             #     print(f" {idx} .. {row} .. !! ")
         #    temprow = [] 
@@ -108,7 +108,7 @@ class Excellerator():
         self.paytable = pd.read_excel(self.input_filepath, sheet_name=self.paytable_sheetname, usecols=self.columns)
         self.paytable.columns = self.paytable.columns.str.strip() # remove whitespace from beginning and end
         self.mean_pay = 0
-        for idx, line in self.paytable.iterrows():
+        for idx, line in self.paytable.itertuples():
             #print(f"line {line[len(line)-1]}")
             self.mean_pay += line['Pay Amount']
         self.mean_pay = self.mean_pay / len(self.paytable)
@@ -140,7 +140,7 @@ class Excellerator():
             print(f"    ! Chose: {rand} against the win table")
         #once chosen, run through the paytable to see where it lands.
         # for each row in paytable, check to see if it's in range, if so Win! if bonus, then do bonus stuff. 
-        for idx, row in self.wintable.iterrows():
+        for idx, row in self.wintable.itertuples():
             #print(f"rand: {rand} .. row {idx}; Weight {row['Weight']}; Win Lines: {row['Win Lines']} -- found:\n{str(row)}")
             #print(f"lower: {row['Lower Range']}; upper: {row['Upper Range']}")
             if(rand >= int(row["Lower Range"]) and rand <= int(row['Upper Range'])):
@@ -178,7 +178,7 @@ class Excellerator():
         rand = random.randint(0, int(self.freespintable[-1:]['Upper Range']) )
         if(self.debug_level >= 1):
             print(f"    ## Chose random number: {rand} for Free Spins Number Table ")
-        for idx, row in self.freespintable.iterrows():
+        for idx, row in self.freespintable.itertuples():
             if(self.debug_level >= 2):
                 print(f"           ???? checking {idx}, is {rand} between {row['Lower Range']} and {row['Upper Range']}?  ")
             # currently wrong. 
@@ -193,7 +193,7 @@ class Excellerator():
             rand = random.randint(0, int(self.fswintable[-1:]['Upper Range']) )
             if(self.debug_level >= 1):
                 print(f"        #### For Free Spin {i+1}, chose {rand} for Free Spins on the FreeGame Pay Values Table")
-            for idx, row in self.fswintable.iterrows():
+            for idx, row in self.fswintable.itertuples():
                 if(rand >= int(row["Lower Range"]) and rand <= int(row['Upper Range'])):
                     if(self.debug_level >= 1):
                         print(f"          ## and that means {row['Bonus Win Lines']} lines won on the Bonus Win Lines Table")
@@ -205,7 +205,7 @@ class Excellerator():
                 rand = random.randint(0, int(self.fspaytable[-1:]['Upper Range']) )
                 if(self.debug_level >= 2):
                     print(f"            $$ On BONUS WIN Table: Bonus Game Line {j+1}, Chose value {rand} for Bonus Win ")
-                for idx, row in self.fspaytable.iterrows():
+                for idx, row in self.fspaytable.itertuples():
                     if(rand >= int(row["Lower Range"]) and rand <= int(row['Upper Range'])):
                         self.this_win += row['Bonus Pay Amount'] * self.bet_per_line
                         self.round_win += self.this_win
@@ -240,7 +240,7 @@ class Excellerator():
                 print(f"    #### In Payout, Randomly chosen: {rand}")
             #once chosen, run through the paytable to see where it lands.
             # for each row in paytable, check to see if it's in range, if so Win! if bonus, then do bonus stuff. 
-            for idx, row in self.paytable.iterrows():
+            for idx, row in self.paytable.itertuples():
                 #print(f"rand: {rand} .. row {idx}; Weight {row['Weight']}; Win Lines: {row['Win Lines']} -- found:\n{str(row)}")
                 #print(f"lower: {row['Lower Range']}; upper: {row['Upper Range']}")
                 if(rand >= int(row["Lower Range"]) and rand <= int(row['Upper Range'])):

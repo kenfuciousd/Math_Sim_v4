@@ -19,7 +19,7 @@ class Excellerator2():
         self.debug_level = debug_level
         #self.eset_df = excel_file.parse(self.settings_sheetname, index_col = 0)
         #if(self.debug_level >= 3):
-        #    for idx, item in eset_df.iterrows():
+        #    for idx, item in eset_df.itertuples():
         #       print(f"index: '{idx}' and \n row '{item['value']}' .. \n")
 
         # this section is to define where we get our theoretical/pre-calculated values from.. 
@@ -126,7 +126,7 @@ class Excellerator2():
             sheet_count += 1
 
         # now calculate mean_pay
-        self.mean_pay = 0
+#        self.mean_pay = 0
         ## old calculation way
         #total_mean_pays = 0
         #total_mean_lines = 0
@@ -134,25 +134,25 @@ class Excellerator2():
         # weighted wins will require a weighted mean calculation
         # https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/weighted-mean/
         #########
-        sum_weighted_win = 0
-        sum_weight = 0
-        pays_sheet = []
-        for i in range(1, games_total+1):
-            exec("pays_sheet.append(self.pays_sheet%d) " % i)
+#        sum_weighted_win = 0
+#        sum_weight = 0
+#        pays_sheet = []
+#        for i in range(1, games_total+1):
+#            exec("pays_sheet.append(self.pays_sheet%d) " % i)
             #exec("print(f'i = {i}, ps = {self.pays_sheet%d}')" % i)
-            for j, line in pays_sheet[0].iterrows():
+#            for j, line in pays_sheet[0].itertuples():
                 #print(f"line {line[len(line)-1]}")
                 ##total_mean_pays += line[0]
                 ##total_mean_lines += 1
-                sum_weighted_win += line[0] * line[1]
-                sum_weight += line[1]                                                                                                                                                                                                                                                                                                                                          
-                if(self.debug_level >= 2):
-                    print(f"    #### sum of weighted wins: {sum_weighted_win} and the sum of weights: {sum_weight}")
+#                sum_weighted_win += line[0] * line[1]
+#                sum_weight += line[1]                                                                                                                                                                                                                                                                                                                                          
+#                if(self.debug_level >= 2):
+#                    print(f"    #### sum of weighted wins: {sum_weighted_win} and the sum of weights: {sum_weight}")
         # This needs to be a Weighted Mean Formula
-        self.mean_pay = sum_weighted_win / sum_weight
+#        self.mean_pay = sum_weighted_win / sum_weight
         #self.mean_pay = total_mean_pays / total_mean_lines
-        if(self.debug_level >= 2):
-            print(f"    #### mean pay {self.mean_pay} = sum of products {sum_weighted_win} / weights {sum_weight}")
+#        if(self.debug_level >= 2):
+#            print(f"    #### mean pay {self.mean_pay} = sum of products {sum_weighted_win} / weights {sum_weight}")
         #if(self.debug_level >= 2):
         #    print(f"        $!MATH$! Paytable Mean Pay is {self.mean_pay}")    
         #self.mean_pay = self.mean_pay / len(self.pays_sheet1)
@@ -192,7 +192,7 @@ class Excellerator2():
             random = 0
         if(self.debug_level >= 1):
             print(f"   Bonus Spins, random: {random}")      
-        for s, srow in spin_sheet.iterrows():
+        for s, srow in spin_sheet.itertuples():
             #print(f" -- spin check in bonus: checking row {s} with info {srow}")
             if((random >= srow["Lower Range"] and random <= srow["Upper Range"]) or len(spin_sheet) == 1):
                 spins = int(srow[0])
@@ -204,7 +204,7 @@ class Excellerator2():
                     random = rd.randrange(0, int(lines_sheet[-1:]['Upper Range']))
                     if(self.debug_level >= 1):
                         print(f"      Bonus Lines: at spin {j} random: {random}")
-                    for l, lrow in lines_sheet.iterrows():
+                    for l, lrow in lines_sheet.itertuples():
                       #print(f" -- lines check in bonus: checking {l} with info {lrow}")
                         if((random >= lrow["Lower Range"] and random <= lrow["Upper Range"]) or len(lines_sheet) == 1):
                             if(self.debug_level >= 1):
@@ -217,7 +217,7 @@ class Excellerator2():
                                 random = rd.randrange(0, int(pays_sheet[-1:]['Upper Range']))
                                 if(self.debug_level >= 1):
                                     print(f"            Bonus Wins random result: {random}")
-                                for bw, bwrow in pays_sheet.iterrows():
+                                for bw, bwrow in pays_sheet.itertuples():
                                     if(random >= bwrow["Lower Range"] and random <= bwrow["Upper Range"]):
                                         if(bwrow[0] != 0):
                                             if(self.debug_level >= 1):
@@ -249,13 +249,13 @@ class Excellerator2():
         if(self.debug_level >= 3):
             print(f"            checking credits: {self.game_credits}  <  {str(this_bet)}")
         # random number vs spin table.   ## set upper range as a variable, so we don't have to keep calling the data structure? 
-        ssur = int(self.spin_sheet1[-1:]['Upper Range'])
+        ssur = int(self.spin_sheet1.iloc[-1:]['Upper Range'])
         if(ssur == 0):
             ssur = 1
         random = rd.randrange(0, ssur)
         if(self.debug_level >= 1):
             print(f"    Main Game Initial Bonus Trigger, randomly number for the spin: {random}")
-        for i, row in self.spin_sheet1.iterrows():
+        for i, row in self.spin_sheet1.itertuples():
             if(random >= row["Lower Range"] and random <= row["Upper Range"]):
                 if(self.debug_level >= 1):
                     print(f"   Found {random} is between {row['Lower Range']} and {row['Upper Range']}")
@@ -269,7 +269,7 @@ class Excellerator2():
                     if(self.debug_level >= 1):
                         print(f"   Main Game Lines: randomly chosen, for the lines: {random}")
                     #loop through the pay lines sheet
-                    for l, lrow in self.lines_sheet1.iterrows():
+                    for l, lrow in self.lines_sheet1.itertuples():
                         if(random >= lrow["Lower Range"] and random <= lrow["Upper Range"]):
                             if(self.debug_level >= 1):
                                 print(f"      Chose {lrow[0]} Line Wins")
@@ -282,7 +282,7 @@ class Excellerator2():
                                     random = rd.randrange(0, psur)
                                     if(self.debug_level >= 1):
                                         print(f"      Main Game Win: randomly chosen, for the wins: {random}")
-                                    for w, wrow in self.pays_sheet1.iterrows():
+                                    for w, wrow in self.pays_sheet1.itertuples():
                                         if(wrow[0] > 0):
                                             # figure out what the payout is by looping through the win table
                                             if(random >= wrow["Lower Range"] and random <= wrow["Upper Range"]):
@@ -321,6 +321,5 @@ class Excellerator2():
             #self.summation += (self.round_win - self.mean_pay) ** 2
             if(self.debug_level >= 2):
                 print(f"    +=+=+=+= summation is now {self.summation}, which is adding {self.round_win*100} squared, divided by {self.paylines}. ")
-
     # end of play_game
 #end class Excellerator2

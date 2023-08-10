@@ -98,7 +98,7 @@ class SlotMachine():
         self.payline_data = pd.read_excel(self.input_filepath, sheet_name=self.paylines_sheetname)
 
         self.paylines = []
-        for idx, row in self.payline_data.iterrows():
+        for idx, row in self.payline_data.itertuples():
             # for each row
             temprow = [] 
             for i in range(0, self.payline_data.shape[1]):
@@ -374,7 +374,7 @@ class SlotMachine():
 
         self.paytable = []
         self.mean_pay = 0
-        for idx, row in self.mod_paytable_data.iterrows():
+        for idx, row in self.mod_paytable_data.itertuples():
             # for each row
             temprow = [] 
             for i in range(0, self.mod_paytable_data.shape[1]):

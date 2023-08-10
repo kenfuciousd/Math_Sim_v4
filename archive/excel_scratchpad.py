@@ -26,7 +26,7 @@ rand = random.randint(0, int(paytable[-1:]['Upper Range']) )
 print(f"Randomly chosen: {rand}")
 #once chosen, run through the paytable to see where it lands.
 # for each row in paytable, check to see if it's in range, if so Win! if bonus, then do bonus stuff. 
-for idx, row in paytable.iterrows():
+for idx, row in paytable.itertuples():
     #print(f"rand: {rand} .. row {idx}; Weight {row['Weight']}; Win Lines: {row['Win Lines']} -- found:\n{str(row)}")
     #print(f"lower: {row['Lower Range']}; upper: {row['Upper Range']}")
     if(rand in range(int(row["Lower Range"]),int(row['Upper Range']))):

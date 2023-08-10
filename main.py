@@ -5,10 +5,12 @@
 #  into the slot machine, and generate randomly simulated results over a chosen number of spins
 
 from classes.tkGui import *
+import globals
 
 if __name__ == '__main__':
     """ main class: take input and call the GUI, which contains the simulator. """
     # GUI call here - this handles everything else, since it's ui / button driven 
+    globals.initialize()
     sim_gui = tkGui()
     sim_gui.mainloop()
 
