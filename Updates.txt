@@ -6,7 +6,6 @@ Updates.txt
         i. math page sheet name, then
         ii.  volatility index, rtp 
     b. Mean and volatility may not be right, with the larger # tables? 
-        seriously broke. now: 
           . weighted mean calculation: https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/weighted-mean/
           . noting to follow Scott's formula: https://support.microsoft.com/en-us/office/sumproduct-function-16753e75-9f68-4874-94ac-4d2145a2fd2e
           . sum of squares https://www.investopedia.com/terms/s/sum-of-squares.asp
@@ -16,3 +15,9 @@ Updates.txt
     b. better sort or iterative ways to do it? 
     c. is the code tight? does it break after finding the right values?
     d. is one of the functions slowing it down? 
+    
+    3.1: the *problem* is iterrows() .. which is apparently very, very slow.
+        https://medium.com/geekculture/simple-tricks-to-speed-up-pandas-by-100x-3b7e705783a8
+
+4. plotting and gui elements 
+    a. solved the maximum credits plotting issue, retaining the max between spins, by implementing globals

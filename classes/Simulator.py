@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 #import pandas as pd     # for reading Excel
 import matplotlib.pyplot as plt  # for displaying math
-
+import globals
 
 class Simulator():
     """ simulator class: takes in the SlotMachine class object, does stuff and tracks it. """
@@ -13,8 +13,8 @@ class Simulator():
         self.incremental_credits = []
         self.incremental_rtp = []
         self.spins = []
-        self.win_list = []  # takes up the header line and lets us start at iteration 1 for data purposes
-        self.rtp_dict = ["RTP"] # takes up the header line and lets us start at iteration 1 for data purposes
+        self.win_list = []  # formerly, had a value for the header line and lets us start at iteration 1 for data purposes
+        self.rtp_dict = [] 
         self.debug_level = debug_level
         self.total_bet = 0
         self.total_won = 0
@@ -87,7 +87,12 @@ class Simulator():
         plt.ylabel('Credits')
         plt.xlabel('Spins')
         plt.xlim(-1,self.simnum) # show total expected spins. 
-        plt.ylim(-1,(max(self.incremental_credits))*1.2)
+        y_credits_ceiling = globals.y_credits_ceiling
+        current_max = max(self.incremental_credits)*1.2
+        #print(f"current max: {current_max} and ceiling is {y_credits_ceiling}")
+        if(current_max > y_credits_ceiling):
+            globals.y_credits_ceiling = current_max
+        plt.ylim(-1,(globals.y_credits_ceiling))
         plt.plot(self.spins, self.incremental_credits)
         plt.show()
 
@@ -103,7 +108,12 @@ class Simulator():
         plt.ylabel('Return To Player %')
         plt.xlabel('Spins')
         plt.xlim(-1,self.simnum) # show total expected spins.
-        plt.ylim(-1,(max(self.incremental_rtp)*1.2)) 
+        current_max = max(self.incremental_rtp)*1.2
+        y_rtp_ceiling = globals.y_rtp_ceiling
+        #print(f"current max: {current_max} and ceiling is {y_rtp_ceiling}")
+        if(current_max > y_rtp_ceiling): 
+            globals.y_rtp_ceiling = current_max
+        plt.ylim(-1,(globals.y_rtp_ceiling)) 
         plt.plot(self.spins, self.incremental_rtp)
         #print(f'debug plot: rtp is {self.sm.rtp}')
         for i in range(0, len(self.spins)):

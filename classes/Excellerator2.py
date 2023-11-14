@@ -126,7 +126,7 @@ class Excellerator2():
             sheet_count += 1
 
         # now calculate mean_pay
-        self.mean_pay = 0
+#        self.mean_pay = 0
         ## old calculation way
         #total_mean_pays = 0
         #total_mean_lines = 0
@@ -134,25 +134,25 @@ class Excellerator2():
         # weighted wins will require a weighted mean calculation
         # https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/weighted-mean/
         #########
-        sum_weighted_win = 0
-        sum_weight = 0
-        pays_sheet = []
-        for i in range(1, games_total+1):
-            exec("pays_sheet.append(self.pays_sheet%d) " % i)
+#        sum_weighted_win = 0
+#        sum_weight = 0
+#        pays_sheet = []
+#        for i in range(1, games_total+1):
+#            exec("pays_sheet.append(self.pays_sheet%d) " % i)
             #exec("print(f'i = {i}, ps = {self.pays_sheet%d}')" % i)
-            for j, line in pays_sheet[0].iterrows():
+#            for j, line in pays_sheet[0].iterrows():
                 #print(f"line {line[len(line)-1]}")
                 ##total_mean_pays += line[0]
                 ##total_mean_lines += 1
-                sum_weighted_win += line[0] * line[1]
-                sum_weight += line[1]                                                                                                                                                                                                                                                                                                                                          
-                if(self.debug_level >= 2):
-                    print(f"    #### sum of weighted wins: {sum_weighted_win} and the sum of weights: {sum_weight}")
+#                sum_weighted_win += line[0] * line[1]
+#                sum_weight += line[1]                                                                                                                                                                                                                                                                                                                                          
+#                if(self.debug_level >= 2):
+#                    print(f"    #### sum of weighted wins: {sum_weighted_win} and the sum of weights: {sum_weight}")
         # This needs to be a Weighted Mean Formula
-        self.mean_pay = sum_weighted_win / sum_weight
+#        self.mean_pay = sum_weighted_win / sum_weight
         #self.mean_pay = total_mean_pays / total_mean_lines
-        if(self.debug_level >= 2):
-            print(f"    #### mean pay {self.mean_pay} = sum of products {sum_weighted_win} / weights {sum_weight}")
+#        if(self.debug_level >= 2):
+#            print(f"    #### mean pay {self.mean_pay} = sum of products {sum_weighted_win} / weights {sum_weight}")
         #if(self.debug_level >= 2):
         #    print(f"        $!MATH$! Paytable Mean Pay is {self.mean_pay}")    
         #self.mean_pay = self.mean_pay / len(self.pays_sheet1)
@@ -249,7 +249,7 @@ class Excellerator2():
         if(self.debug_level >= 3):
             print(f"            checking credits: {self.game_credits}  <  {str(this_bet)}")
         # random number vs spin table.   ## set upper range as a variable, so we don't have to keep calling the data structure? 
-        ssur = int(self.spin_sheet1[-1:]['Upper Range'])
+        ssur = int(self.spin_sheet1.iloc[-1:]['Upper Range'])
         if(ssur == 0):
             ssur = 1
         random = rd.randrange(0, ssur)
@@ -321,6 +321,5 @@ class Excellerator2():
             #self.summation += (self.round_win - self.mean_pay) ** 2
             if(self.debug_level >= 2):
                 print(f"    +=+=+=+= summation is now {self.summation}, which is adding {self.round_win*100} squared, divided by {self.paylines}. ")
-
     # end of play_game
 #end class Excellerator2

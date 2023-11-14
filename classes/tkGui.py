@@ -11,10 +11,9 @@ import numpy as np
 from classes.Excellerator2 import Excellerator2
 from classes.Simulator import Simulator
 import time
-
+import globals
 
 class tkGui(tk.Tk):
-
     def __init__(self):
         super().__init__()  #the super is a bit unnecessary, as there is nothing to inherit... but leaving it here for reference. 
         self.debug_level_default = 0
@@ -25,7 +24,6 @@ class tkGui(tk.Tk):
         self.columnconfigure(1, weight = 1)
         self.columnconfigure(2, weight = 1)
         self.columnconfigure(3, weight = 1)
-
         # default text/value entries
         #self.bet = StringVar(self, value = "0.50")  ## set this as a string in order to get a decimal.
         self.bet = StringVar(self, value = "0.01")  ## set this as a string in order to get a decimal.
@@ -61,7 +59,6 @@ class tkGui(tk.Tk):
         self.confidence_interval = 1.65 # 90% confidence
         #self.confidence_interval = 1.96 # 95% confidence 
         #self.confidence_interval = 2.58 # 99% confidence       
-        self.plot_toggle = 0
         # finally for init, create the gui itself, calling the function
         self.create_gui()
 
@@ -86,13 +83,13 @@ class tkGui(tk.Tk):
             print(f"            and the entry is {self.input_file_entry.get()}")
 
     def sim_output_filepath_dialog_button(self): 
-        self.sim_output_filepath.set(fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("csv files","*.csv"), ("all files","*.*")) ) )
+        self.sim_output_filepath.set(fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("text files","*.txt"), ("all files","*.*")) ) )
         if(self.debug_level.get() >= 1):
             print(f"    ouput filepath is {self.sim_output_filepath}")       
         self.sim_output_file_entry.textvariable=self.sim_output_filepath.get()
 
     def math_output_filepath_dialog_button(self): 
-        self.math_output_filepath.set(fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("csv files","*.csv"), ("all files","*.*")) ) )
+        self.math_output_filepath.set(fd.askopenfilename(initialdir=os.curdir, title="Select A File", filetypes=(("text files","*.txt"), ("all files","*.*")) ) )
         if(self.debug_level/get() >= 1):
             print(f"    math output file is {self.math_output_filepath}")
         self.math_output_file_entry.textvariable=self.math_output_filepath.get()
@@ -105,6 +102,7 @@ class tkGui(tk.Tk):
         if(os.path.exists(str(self.sim_output_filepath)) == False):
             with open(str(self.sim_output_filepath.get()), 'w') as fp:
                 fp.close()
+        #to_txt?  https://stackoverflow.com/questions/31247198/python-pandas-write-content-of-dataframe-into-text-file
         self.df.to_csv(str(self.sim_output_filepath.get()), index=False, header=False)
         if(self.debug_level.get() >= 0):
             print(f"    Sim Output Saving... {str(self.sim_output_filepath.get())}")
@@ -118,6 +116,7 @@ class tkGui(tk.Tk):
         if(os.path.exists(str(self.math_output_filepath)) == False):
             with open(str(self.math_output_filepath.get()), 'w') as fp:
                 fp.close()
+        # to text        
         self.df.to_csv(str(self.math_output_filepath.get()))
         if(self.debug_level.get() >= 1):
             print(f"    Math Output File Saving... {str(self.math_output_filepath.get())}")
@@ -156,9 +155,9 @@ class tkGui(tk.Tk):
     def sim_button_clicked(self):
         #start simulation here...
         #print("buttonpress")
-        self.status_box.set("[Run Simulator Button Pressed, Running.]")        
         if(self.slot_ready == True):
             self.start_time = time.time()
+            self.status_box.set("[Run Simulator Button Pressed, Running Now...]")
             self.sim = Simulator(self.sm, self.simruns.get(), self.debug_level.get())   # simulator call 
             self.df = pd.DataFrame(self.sim.win_list)   #, columns=['Credits'])  # pull the saved simulator dat
             # set the machine credits after each run
@@ -298,7 +297,7 @@ class tkGui(tk.Tk):
         gui_row_iteration += 1
 
         # build slot button
-        self.label_build_slot = tk.Label(self, text="2. Build Virtual Slot ")
+        self.label_build_slot = tk.Label(self, text="2. Build Virtual Slot / Reset")
         self.label_build_slot.grid(row = gui_row_iteration, column = 0, columnspan = 4, sticky=W, padx=15)
         gui_row_iteration += 1
         self.run_slots_button = tk.Button(self, text="2. Build Virtual Slot", command = self.build_slot_button)

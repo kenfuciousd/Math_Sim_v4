@@ -7,3 +7,6 @@ The Gui version is used by running: main.py
 The headless version, used to produce output files, can be called with: headless_game_gen.py
 
 V4 to update gui / math values, improve error handling; to assess speed improvements. 
+
+
+packages required: python-tk, openpyxl, pandas, numpy
