@@ -64,7 +64,7 @@ def bonus_game(spin_sheet, lines_sheet, pays_sheet):
    #print(f"{pays_sheet}")
    random = rd.randrange(0, int(spin_sheet[-1:]['Upper Range']))
    print(f"   Bonus Spins: random: {random}")      
-   for i, row in spin_sheet.iterrows():
+   for i, row in spin_sheet.itertuples():
       #print(f" -- spin check in bonus: checking row {i} with info {row}")
       if(random >= row["Lower Range"] and random <= row["Upper Range"]):
          spins = row[0]
@@ -73,7 +73,7 @@ def bonus_game(spin_sheet, lines_sheet, pays_sheet):
             for j in range(0, spins):
                random = rd.randrange(0, int(lines_sheet[-1:]['Upper Range']))
                print(f"      Bonus Lines: at spin {j} random: {random}")
-               for l, lrow in lines_sheet.iterrows():
+               for l, lrow in lines_sheet.itertuples():
                   #print(f" -- lines check in bonus: checking {l} with info {lrow}")
                  if(random >= lrow["Lower Range"] and random <= lrow["Upper Range"]):
                      print(f"         Bonus Chose {lrow[0]} Line Wins")
@@ -81,7 +81,7 @@ def bonus_game(spin_sheet, lines_sheet, pays_sheet):
                         for lines in range(0, lrow[0]):  
                            random = rd.randrange(0, int(pays_sheet[-1:]['Upper Range']))
                            print(f"            Bonus Wins random: {random}")
-                           for bw, bwrow in pays_sheet.iterrows():
+                           for bw, bwrow in pays_sheet.itertuples():
                               if(random >= bwrow["Lower Range"] and random <= bwrow["Upper Range"]):
                                  print(f"               Bonus Winner! would add {bwrow[0]} to the total, found between {bwrow['Lower Range']} and {bwrow['Upper Range']}")
                                  
@@ -93,21 +93,21 @@ def play_game():
    # random number vs spin table.   ## set upper range as a variable, so we don't have to keep calling the data structure? 
    random = rd.randrange(0, int(spin_sheet1[-1:]['Upper Range']))
    print(f"Main Game Initial Bonus Trigger, randomly chosen, for the spin: {random}")
-   for i, row in spin_sheet1.iterrows():
+   for i, row in spin_sheet1.itertuples():
       if(random >= row["Lower Range"] and random <= row["Upper Range"]):
          print(f"   Found {random} is between {row['Lower Range']} and {row['Upper Range']}")
          if(i == 0):
             print(f"Playing Main Game")
             random = rd.randrange(0, int(lines_sheet1[-1:]['Upper Range']))
             print(f"   Main Game Lines: randomly chosen, for the lines: {random}")
-            for l, lrow in lines_sheet1.iterrows():
+            for l, lrow in lines_sheet1.itertuples():
                if(random >= lrow["Lower Range"] and random <= lrow["Upper Range"]):
                   print(f"      Chose {lrow[0]} Line Wins")
                   if(lrow[0] > 0):
                      for lines in range(0, lrow[0]):  
                         random = rd.randrange(0, int(pays_sheet1[-1:]['Upper Range']))
                         print(f"      Main Game Win: randomly chosen, for the wins: {random}")
-                        for w, wrow in pays_sheet1.iterrows():
+                        for w, wrow in pays_sheet1.itertuples():
                            if(random >= wrow["Lower Range"] and random <= wrow["Upper Range"]):
                               print(f"         Winner! would add {wrow[0]} to the total, found between {wrow['Lower Range']} and {wrow['Upper Range']}")
          else:

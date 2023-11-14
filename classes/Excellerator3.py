@@ -1,4 +1,4 @@
-#Excellerator2.py
+#Excellerator3.py
 
 import sys
 import os
@@ -8,7 +8,7 @@ import random as rd
 import numpy as np        # rounding
 import pandas as pd
 
-class Excellerator2():
+class Excellerator3():
     def __init__(self, filepath, bet, initial_credits, debug_level, infinite_checked):
         # initialization values 
         self.input_filepath = filepath
@@ -255,7 +255,11 @@ class Excellerator2():
         random = rd.randrange(0, ssur)
         if(self.debug_level >= 1):
             print(f"    Main Game Initial Bonus Trigger, randomly number for the spin: {random}")
-        for i, row in self.spin_sheet1.itertuples():
+        i = 0
+        r = 0
+        w = 0
+        for row in self.spin_sheet1.itertuples():
+            print(f"{row}")
             if(random >= row["Lower Range"] and random <= row["Upper Range"]):
                 if(self.debug_level >= 1):
                     print(f"   Found {random} is between {row['Lower Range']} and {row['Upper Range']}")
@@ -269,7 +273,7 @@ class Excellerator2():
                     if(self.debug_level >= 1):
                         print(f"   Main Game Lines: randomly chosen, for the lines: {random}")
                     #loop through the pay lines sheet
-                    for l, lrow in self.lines_sheet1.itertuples():
+                    for lrow in self.lines_sheet1.itertuples():
                         if(random >= lrow["Lower Range"] and random <= lrow["Upper Range"]):
                             if(self.debug_level >= 1):
                                 print(f"      Chose {lrow[0]} Line Wins")
@@ -282,7 +286,7 @@ class Excellerator2():
                                     random = rd.randrange(0, psur)
                                     if(self.debug_level >= 1):
                                         print(f"      Main Game Win: randomly chosen, for the wins: {random}")
-                                    for w, wrow in self.pays_sheet1.itertuples():
+                                    for wrow in self.pays_sheet1.itertuples():
                                         if(wrow[0] > 0):
                                             # figure out what the payout is by looping through the win table
                                             if(random >= wrow["Lower Range"] and random <= wrow["Upper Range"]):
@@ -293,6 +297,9 @@ class Excellerator2():
                                                 self.round_win += self.this_win
                                                 self.win_toggle = 1 
                                                 break
+                                        w += 1
+                            break
+                        l += 1
                 else:
                     sn = i+1
                     if(self.debug_level >= 1):
@@ -304,6 +311,7 @@ class Excellerator2():
                     exec("toPass.append(self.lines_sheet%d)" % sn)
                     exec("toPass.append(self.pays_sheet%d)" % sn)
                     self.bonus_game(toPass[0], toPass[1], toPass[2])
+                i += 1
         if(self.debug_level >= 2):
             print(f"        $$$$ ++++ TOTAL win this round: {self.round_win}, with a total simulator win of {self.total_won}")
         # Then, if it was a win, do the math
@@ -322,4 +330,4 @@ class Excellerator2():
             if(self.debug_level >= 2):
                 print(f"    +=+=+=+= summation is now {self.summation}, which is adding {self.round_win*100} squared, divided by {self.paylines}. ")
     # end of play_game
-#end class Excellerator2
+#end class Excellerator3
